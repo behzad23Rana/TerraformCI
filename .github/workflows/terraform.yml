@@ -36,9 +36,9 @@ jobs:
     - name: Create tfvars file
       run: |
        echo "subscription_id = \"${{ vars.SUBSCRIPTION_ID }}\"" > terraform.tfvars
-       echo "enable_locks = ${vars.ENABLE_LOCKS}" >> terraform.tfvars
-       echo "index = ${vars.INDEX}" >> terraform.tfvars
-       echo "counter = ${vars.COUNTER}" >> terraform.tfvars
+       echo "enable_locks = \"${{ vars.ENABLE_LOCKS }}\"" >> terraform.tfvars
+       echo "index = \"${{ vars.INDEX }}\"" >> terraform.tfvars
+       echo "counter = \"${{ vars.COUNTER }}\"" >> terraform.tfvars
        echo "env = \"${{ vars.ENV }}\"" >> terraform.tfvars
        echo "region = \"${{ vars.REGION }}\"" >> terraform.tfvars
        echo "location = \"${{ vars.LOCATION }}\"" >> terraform.tfvars
