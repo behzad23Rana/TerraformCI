@@ -1,22 +1,22 @@
-name: Get Runner IP Addresses
+# name: Get Runner IP Addresses
 
-on:
-  push:
-    branches: [ "main" ]
+# on:
+#   push:
+#     branches: [ "main" ]
 
-jobs:
-  get-ip:
-    runs-on: ubuntu-latest
+# jobs:
+#   get-ip:
+#     runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+#     steps:
+#     - name: Checkout code
+#       uses: actions/checkout@v2
 
-    - name: Get IP Addresses
-      id: ip
-      uses: candidob/get-runner-ip@v1.0.0
+#     - name: Get IP Addresses
+#       id: ip
+#       uses: candidob/get-runner-ip@v1.0.0
 
-    - name: Display IP Addresses
-      run: |
-        echo "IPv4: ${{ steps.ip.outputs.ipv4 }}"
-        echo "IPv6: ${{ steps.ip.outputs.ipv6 }}"
+#     - name: Display IP Addresses
+#       run: |
+#         echo "IPv4: ${{ steps.ip.outputs.ipv4 }}"
+#         echo "IPv6: ${{ steps.ip.outputs.ipv6 }}"
