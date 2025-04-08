@@ -23,7 +23,12 @@ jobs:
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
-  
+
+    - name: Configure Azure credentials
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        
     - name: Configure Azure credentials
       run: |
         echo "AZURE_STORAGE_SAS_TOKEN=${{ secrets.AZURE_STORAGE_SAS_TOKEN }}" >> $GITHUB_ENV
