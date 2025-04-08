@@ -35,19 +35,44 @@ jobs:
 
     - name: Create tfvars file
       run: |
-       echo "${{ variables.TF_VARS }}" > terraform.tfvars
-       
+       echo "subscription_id = \"${{ vars.SUBSCRIPTION_ID }}\"" > terraform.tfvars
+       echo "enable_locks = ${{ vars.ENABLE_LOCKS }}" >> terraform.tfvars
+       echo "index = ${{ vars.INDEX }}" >> terraform.tfvars
+       echo "counter = ${{ vars.COUNTER }}" >> terraform.tfvars
+       echo "env = \"${{ vars.ENV }}\"" >> terraform.tfvars
+       echo "region = \"${{ vars.REGION }}\"" >> terraform.tfvars
+       echo "location = \"${{ vars.LOCATION }}\"" >> terraform.tfvars
+       echo "storage_accounts = {" >> terraform.tfvars
+       echo "  \"storage1\" = {" >> terraform.tfvars
+       echo "    name = \"${{ vars.STORAGE1_NAME }}\"" >> terraform.tfvars
+       echo "    location = \"${{ vars.STORAGE1_LOCATION }}\"" >> terraform.tfvars
+       echo "    account_tier = \"${{ vars.STORAGE1_ACCOUNT_TIER }}\"" >> terraform.tfvars
+       echo "    account_replication_type = \"${{ vars.STORAGE1_ACCOUNT_REPLICATION_TYPE }}\"" >> terraform.tfvars
+       echo "  }" >> terraform.tfvars
+       echo "  \"storage2\" = {" >> terraform.tfvars
+       echo "    name = \"${{ vars.STORAGE2_NAME }}\"" >> terraform.tfvars
+       echo "    location = \"${{ vars.STORAGE2_LOCATION }}\"" >> terraform.tfvars
+       echo "    account_tier = \"${{ vars.STORAGE2_ACCOUNT_TIER }}\"" >> terraform.tfvars
+       echo "    account_replication_type = \"${{ vars.STORAGE2_ACCOUNT_REPLICATION_TYPE }}\"" >> terraform.tfvars
+       echo "  }" >> terraform.tfvars
+       echo "}" >> terraform.tfvars
+       echo "sa_resource_group_name = \"${{ vars.SA_RESOURCE_GROUP_NAME }}\"" >> terraform.tfvars
+       echo "aks_resource_group_name = \"${{ vars.AKS_RESOURCE_GROUP_NAME }}\"" >> terraform.tfvars
+
     - name: Debug tfvars file
       run: cat terraform.tfvars
-      
+
     - name: Terraform Init
       run: terraform init
+
+    - name: Terraform Format
+      run: terraform fmt -check
     
     - name: Terraform Validate
       run: terraform validate
 
     - name: Terraform Plan
-      run: terraform plan -out=tfplan -var-file="terraform.tfvars"
+      run: terraform plan -out=tfplan
 
     - name: Save Plan State
       id: save_plan_state
@@ -71,5 +96,5 @@ jobs:
           });
 
     - name: Terraform Apply
-      if: steps.plan.outcome == 'success'
-      run: terraform apply -auto-approve tfplan -var-file="terraform.tfvars"
+      if: steps.save_plan_output.outcome == 'success'
+      run: terraform apply -auto-approve tfplan
