@@ -47,7 +47,7 @@ jobs:
       run: terraform validate
 
     - name: Terraform Plan
-      run: terraform plan -out=tfplan
+      run: terraform plan -out=tfplan -var-file="terraform.tfvars"
 
     - name: Save Plan State
       id: save_plan_state
@@ -72,4 +72,4 @@ jobs:
 
     - name: Terraform Apply
       if: steps.plan.outcome == 'success'
-      run: terraform apply -auto-approve tfplan
+      run: terraform apply -auto-approve tfplan -var-file="terraform.tfvars"
