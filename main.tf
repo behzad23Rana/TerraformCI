@@ -19,7 +19,6 @@ provider "azurerm" {
   features {}
   # skip_provider_registration = true
   subscription_id = var.subscription_id
-  # subscription_id = "665ef1b3-b23d-4af9-9316-5155d0637cbd"
 }
 
 locals {
@@ -82,5 +81,3 @@ resource "azurerm_kubernetes_cluster" "aks" {
   depends_on = [azurerm_resource_group.rg]
 
 }
-
-// rm terraform.tfstate* command to remove the state file
