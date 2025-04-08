@@ -29,6 +29,10 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+    - name: Create tfvars file
+      run: |
+       echo "${{ secrets.TF_VARS }}" > terraform.tfvars
+
     - name: Terraform Init
       run: terraform init
 
