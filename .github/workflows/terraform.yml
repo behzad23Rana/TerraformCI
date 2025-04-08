@@ -49,9 +49,13 @@ jobs:
     - name: Terraform Plan
       run: terraform plan -out=tfplan
 
+    - name: Save Plan State
+      id: plan
+      run: echo "PLAN_OUTPUT=$(terraform show -json tfplan)" >> GITHUB_STATE
+
     - name: Save Plan Output
       id: plan
-      run: echo "PLAN_OUTPUT=$(terraform show -json tfplan)" >> $GITHUB_ENV
+      run: echo "PLAN_OUTPUT=$(terraform show -json tfplan)" >> GITHUB_OUTPUT
 
     - name: Add Plan Comment
       uses: actions/github-script@v6
