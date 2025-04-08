@@ -14,7 +14,7 @@ variable "enable_locks" {
 variable "index" {
   description = "When we need to create a seqeunce of the rg we use this variable to add the sequence at the end"
   type        = number
-  default     = 1
+  default     = 2
 }
 
 variable "counter" {
