@@ -39,7 +39,7 @@ jobs:
       id: save_plan_state
       run: |
         terraform show -json tfplan > tfplan.json
-        PLAN_OUTPUT=$(cat tfplan.json)
+        PLAN_OUTPUT=$(jq -c . tfplan.json)
         echo "PLAN_OUTPUT=$PLAN_OUTPUT" >> $GITHUB_STATE
       
     - name: Apply Terraform
