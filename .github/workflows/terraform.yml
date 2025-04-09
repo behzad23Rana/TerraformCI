@@ -36,4 +36,4 @@ jobs:
       run: terraform plan -var-file="variables-de.tfvars"
       
     - name: Apply Terraform
-      run: terraform apply -auto-approve
+      run: terraform apply -var-file="variables-de.tfvars" -auto-approve
