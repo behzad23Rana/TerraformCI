@@ -20,31 +20,25 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Decode .tfvars from GitHub secret
+      run: |
+        echo "${{ secrets.TFVARS_B64 }}" | base64 --decode > variables-de.tfvars
+        echo "Decoded variables-de.tfvars file."
 
     - name: Initialize Terraform
       run: terraform init
 
+    - name: Terraform Validate
+      run: terraform validate
+
     - name: Terraform Plan
-      id: plan
-      run: terraform plan -out=tfplan
+      run: terraform plan -out=tfplan -var-file="variables-de.tfvars"
 
-    - name: Save Plan Output
-      id: save_plan
-      run: echo "PLAN_OUTPUT=$(terraform show -json tfplan)" >> $GITHUB_ENV
-
-    - name: Add Plan Comment
-      uses: actions/github-script@v6
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const planOutput = process.env.PLAN_OUTPUT;
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: `#### Terraform Plan Output\n\`\`\`json\n${planOutput}\n\`\`\``
-          });
-
+    - name: Save Plan State
+      id: save_plan_state
+      run: echo "PLAN_OUTPUT=$(terraform show -json tfplan)" >> $GITHUB_STATE
+      
     - name: Apply Terraform
       if: steps.plan.outcome == 'success'
-      run: terraform apply -auto-approve tfplan
+      run: terraform apply -auto-approve tfplan -var-file="variables-de.tfvars"
