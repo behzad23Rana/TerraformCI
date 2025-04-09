@@ -8,7 +8,7 @@ on:
     inputs:
       destroy:
         description: 'Run destroy stage'
-        required: true
+        required: false
         default: 'false'
 
 jobs:
