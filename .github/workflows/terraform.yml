@@ -36,5 +36,4 @@ jobs:
       run: terraform plan -out=tfplan -var-file="variables-de.tfvars"
       
     - name: Apply Terraform
-      if: steps.plan.outcome == 'success'
       run: terraform apply -auto-approve tfplan -var-file="variables-de.tfvars"
