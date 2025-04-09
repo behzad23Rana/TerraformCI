@@ -43,7 +43,7 @@ jobs:
 
   TF_APPLY:
     runs-on: ubuntu-latest
-    needs: terraform
+    needs: TF_PLAN
     if: success()
 
     steps:
@@ -71,7 +71,7 @@ jobs:
 
   TF_DESTROY:
     runs-on: ubuntu-latest
-    needs: terraform
+    needs: TF_PLAN
     if: github.event.inputs.destroy == 'true'
 
     steps:
