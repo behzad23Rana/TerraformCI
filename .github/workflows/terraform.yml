@@ -8,10 +8,10 @@ permissions:
   contents: read
 
 jobs:
-  terraform:
-    name: 'Terraform'
+  terraform-plan:
+    name: 'Terraform Plan'
     runs-on: ubuntu-latest
-    environment: production
+    environment: dev
 
     defaults:
       run:
@@ -23,15 +23,22 @@ jobs:
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
-  
+      with:
+        terraform_version: 1.5.6
+
     - name: Configure Azure credentials
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    - name: Create tfvars file
+        
+    - name: Set Azure Storage SAS Token
       run: |
-       echo "${{ secrets.TF_VARS }}" > terraform.tfvars
+        echo "AZURE_STORAGE_SAS_TOKEN=${{ secrets.AZURE_STORAGE_SAS_TOKEN }}" >> $GITHUB_ENV
+    
+    - name: Decode .tfvars from GitHub secret
+      run: |
+        echo "${{ secrets.TFVARS_B64 }}" | base64 --decode > variables-de.tfvars
+        echo "Decoded variables-de.tfvars file."
 
     - name: Terraform Init
       run: terraform init
@@ -43,25 +50,47 @@ jobs:
       run: terraform validate
 
     - name: Terraform Plan
-      run: terraform plan -out=tfplan
+      run: terraform plan -out=tfplan -var-file="variables-de.tfvars"
 
-    - name: Save Plan Output
-      id: plan
-      run: echo "PLAN_OUTPUT=$(terraform show -json tfplan)" >> $GITHUB_ENV
+    - name: Save Plan State
+      id: save_plan_state
+      run: echo "PLAN_OUTPUT=$(terraform show -json tfplan)" >> $GITHUB_STATE
 
-    - name: Add Plan Comment
-      uses: actions/github-script@v6
+  terraform-apply:
+    name: 'Terraform Apply'
+    runs-on: ubuntu-latest
+    environment: dev
+    needs: terraform-plan
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const planOutput = process.env.PLAN_OUTPUT;
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: `#### Terraform Plan Output\n\`\`\`json\n${planOutput}\n\`\`\``
-          });
+        terraform_version: 1.5.6
+
+    - name: Configure Azure credentials
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        
+    - name: Set Azure Storage SAS Token
+      run: |
+        echo "AZURE_STORAGE_SAS_TOKEN=${{ secrets.AZURE_STORAGE_SAS_TOKEN }}" >> $GITHUB_ENV
+    
+    - name: Decode .tfvars from GitHub secret
+      run: |
+        echo "${{ secrets.TFVARS_B64 }}" | base64 --decode > variables-de.tfvars
+        echo "Decoded variables-de.tfvars file."
+
+    - name: Terraform Init
+      run: terraform init
 
     - name: Terraform Apply
-      if: steps.plan.outcome == 'success'
-      run: terraform apply -auto-approve tfplan
+      run: terraform apply -auto-approve tfplan -var-file="variables-de.tfvars"
