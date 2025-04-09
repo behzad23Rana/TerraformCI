@@ -34,13 +34,6 @@ jobs:
 
     - name: Terraform Plan
       run: terraform plan -out=tfplan -var-file="variables-de.tfvars"
-
-    - name: Save Plan State
-      id: save_plan_state
-      run: |
-        terraform show -json tfplan > tfplan.json
-        PLAN_OUTPUT=$(jq -c . tfplan.json)
-        echo "PLAN_OUTPUT=$PLAN_OUTPUT" >> $GITHUB_STATE
       
     - name: Apply Terraform
       if: steps.plan.outcome == 'success'
