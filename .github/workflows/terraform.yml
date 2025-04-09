@@ -8,8 +8,8 @@ permissions:
   contents: read
 
 jobs:
-  terraform-plan:
-    name: 'Terraform Plan'
+  terraform:
+    name: 'Terraform-Deploy'
     runs-on: ubuntu-latest
     environment: dev
 
@@ -56,41 +56,10 @@ jobs:
       id: save_plan_state
       run: echo "PLAN_OUTPUT=$(terraform show -json tfplan)" >> $GITHUB_STATE
 
-  terraform-apply:
-    name: 'Terraform Apply'
-    runs-on: ubuntu-latest
-    environment: dev
-    needs: terraform-plan
-
-    defaults:
-      run:
-        shell: bash
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
-      with:
-        terraform_version: 1.5.6
-
-    - name: Configure Azure credentials
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-        
-    - name: Set Azure Storage SAS Token
-      run: |
-        echo "AZURE_STORAGE_SAS_TOKEN=${{ secrets.AZURE_STORAGE_SAS_TOKEN }}" >> $GITHUB_ENV
-    
-    - name: Decode .tfvars from GitHub secret
-      run: |
-        echo "${{ secrets.TFVARS_B64 }}" | base64 --decode > variables-de.tfvars
-        echo "Decoded variables-de.tfvars file."
-
-    - name: Terraform Init
-      run: terraform init
+    - name: Save Plan Output
+      id: save_plan_output
+      run: echo "PLAN_OUTPUT=$(terraform show -json tfplan)" >> $GITHUB_OUTPUT
 
     - name: Terraform Apply
+      if: steps.save_plan_output.outcome == 'success'
       run: terraform apply -auto-approve tfplan -var-file="variables-de.tfvars"
