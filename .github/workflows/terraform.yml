@@ -37,7 +37,9 @@ jobs:
 
     - name: Save Plan State
       id: save_plan_state
-      run: echo "PLAN_OUTPUT=$(terraform show -json tfplan)" >> $GITHUB_STATE
+      run: |
+        PLAN_OUTPUT=$(terraform show -json tfplan)
+        echo "PLAN_OUTPUT=$PLAN_OUTPUT" >> $GITHUB_STATE
       
     - name: Apply Terraform
       if: steps.plan.outcome == 'success'
