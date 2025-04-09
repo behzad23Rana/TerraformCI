@@ -14,6 +14,7 @@ on:
 jobs:
   TF_PLAN:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.inputs.destroy == 'false'
 
     steps:
     - name: Checkout code
@@ -44,7 +45,7 @@ jobs:
   TF_APPLY:
     runs-on: ubuntu-latest
     needs: TF_PLAN
-    if: success()
+    if: success() && (github.event_name == 'push' || github.event.inputs.destroy == 'false')
 
     steps:
     - name: Checkout code
