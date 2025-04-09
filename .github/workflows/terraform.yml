@@ -69,9 +69,36 @@ jobs:
     - name: Apply Terraform
       run: terraform apply -var-file="variables-de.tfvars" -auto-approve
 
+  TF_DESTROY_PLAN:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.destroy == 'true'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+
+    - name: Configure Azure credentials
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Decode .tfvars from GitHub secret
+      run: |
+        echo "${{ secrets.TFVARS_B64 }}" | base64 --decode > variables-de.tfvars
+        echo "Decoded variables-de.tfvars file."
+
+    - name: Initialize Terraform
+      run: terraform init
+
+    - name: Terraform Plan Destroy
+      run: terraform plan -destroy -var-file="variables-de.tfvars"
+
   TF_DESTROY:
     runs-on: ubuntu-latest
-    needs: TF_PLAN
+    needs: TF_DESTROY_PLAN
     if: github.event.inputs.destroy == 'true'
 
     steps:
