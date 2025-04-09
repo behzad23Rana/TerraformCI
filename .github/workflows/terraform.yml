@@ -8,11 +8,11 @@ on:
     inputs:
       destroy:
         description: 'Run destroy stage'
-        required: false
+        required: true
         default: 'false'
 
 jobs:
-  terraform:
+  TF_PLAN:
     runs-on: ubuntu-latest
 
     steps:
@@ -41,7 +41,7 @@ jobs:
     - name: Terraform Plan
       run: terraform plan -var-file="variables-de.tfvars"
 
-  apply:
+  TF_APPLY:
     runs-on: ubuntu-latest
     needs: terraform
     if: success()
@@ -69,7 +69,7 @@ jobs:
     - name: Apply Terraform
       run: terraform apply -var-file="variables-de.tfvars" -auto-approve
 
-  destroy:
+  TF_DESTROY:
     runs-on: ubuntu-latest
     needs: terraform
     if: github.event.inputs.destroy == 'true'
